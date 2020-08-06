@@ -198,8 +198,10 @@ void demoFgets() {
       lcd.print(voucherTimerShowLimit);
       if(digitalRead(2) == 0) //<-- back to [please insert coins]
       {
-        if(_coinInserted > 0)
+        if(voucherTimerShowLimit >= 10){
+          if(_coinInserted > 0)
           voucherTimerShowLimit = 99;
+        }
       }
       delay(1000);
       voucherTimerShowLimit++;
