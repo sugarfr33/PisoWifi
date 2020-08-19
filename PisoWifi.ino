@@ -13,8 +13,6 @@ const uint8_t chipSelect = SS;
 
 // file system
 SdFat sd;
-// open test file
-//SdFile rdfile("fgets.txt", O_RDWR);
 
 // print stream
 ArduinoOutStream cout(Serial);
@@ -23,10 +21,6 @@ ArduinoOutStream cout(Serial);
 #define error(s) sd.errorHalt(F(s))
 
 int _coinInserted = 0;
-
-#define _anodeLed 8
-#define _cathodeLed 7
-int _led_on_off = 2000;
 int _isOkay = 0;
 int _isEndOfLine = 0;
 
@@ -41,11 +35,6 @@ void setup() {
   if (!sd.begin(chipSelect, SD_SCK_MHZ(50))) {
     sd.initErrorHalt();
   }
-  //Setup_InitSD();
-
-  //makeTestFile();
-
-  //demoFgets();
 }
 
 // the loop function runs over and over again forever
@@ -90,20 +79,6 @@ void Loop_Lcd(){
   }
 }
 
-void Setup_LightLED(){
-  pinMode(_anodeLed, OUTPUT);
-  pinMode(3, INPUT);
-}
-
-void Loop_PressBtnLED(){
-  if(digitalRead(3) == 0){
-    //while(digitalRead(3) == 0);
-
-    digitalWrite(_anodeLed, HIGH);
-    
-  }
-}
-
 void demoFgets() {
 
   char line[25];
@@ -123,7 +98,18 @@ void demoFgets() {
   
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("VOUCHER CODE");
+  lcd.print("--- ");
+  lcd.print(_coinInserted);
+  lcd.print(" ---");
+  /*if(_coinInserted == 5){
+    lcd.print("1 HOUR");
+  }else if(_coinInserted == 10){
+    lcd.print("2 HOURS");
+  }else if(_coinInserted == 30){
+    lcd.print("1 DAY");
+  }else if(_coinInserted == 50){
+    lcd.print("5 DAYS");
+  }*/
   lcd.setCursor(0,1);
 
   // open test file
@@ -187,20 +173,23 @@ void demoFgets() {
       rdfile.println("WALANAAAA");
     }
   }
-  
+
+  // close so rewrite is not lost
+  rdfile.close();
 
   if(_isEndOfLine == 1){
     lcd.print(_coinInserted);
   }else{
     int voucherTimerShowLimit = 1;
-    while (voucherTimerShowLimit <= 99){
-      lcd.setCursor(14,0);
-      lcd.print(voucherTimerShowLimit);
+    //while (voucherTimerShowLimit <= 99){
+    while (1){
+      //lcd.setCursor(14,0);
+      //lcd.print(voucherTimerShowLimit);
       if(digitalRead(2) == 0) //<-- back to [please insert coins]
       {
-        if(voucherTimerShowLimit >= 10){
+        if(voucherTimerShowLimit >= 5){
           if(_coinInserted > 0)
-          voucherTimerShowLimit = 99;
+            break;
         }
       }
       delay(1000);
@@ -209,8 +198,7 @@ void demoFgets() {
     //Initialize again variable
     InitVariableAfterCodeShow();
   }
-  // close so rewrite is not lost
-  rdfile.close();
+  
 }
 
 void InitVariableAfterCodeShow(){
